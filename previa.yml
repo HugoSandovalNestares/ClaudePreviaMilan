@@ -1,0 +1,30 @@
+name: Previa Milan
+
+on:
+  schedule:
+    # 06:00 UTC = 08:00 en verano / 07:00 en invierno (hora de Madrid)
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      fecha:
+        description: "Fecha del partido (YYYY-MM-DD) para pruebas"
+        required: false
+
+jobs:
+  previa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python agente_previa.py
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          WP_CATEGORY_ID: ${{ vars.WP_CATEGORY_ID }}
+          FECHA_OBJETIVO: ${{ github.event.inputs.fecha }}
